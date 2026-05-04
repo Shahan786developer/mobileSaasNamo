@@ -1,0 +1,12 @@
+# Enable Rewrite Engine
+RewriteEngine On
+
+# Set the base directory (adjust if your app is in a subfolder)
+RewriteBase /
+
+# Redirect all requests to index.php except existing files or directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirect everything to index.php
+RewriteRule ^.*$ index.php [L,QSA]
