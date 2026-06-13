@@ -196,7 +196,7 @@ $accountList = $accountList->fetchAll();
 
             </form>
             <a href='cashRecipt_create.php' class="btn btn-success" style='width:300px'>Create</a>
-              <a href='index.php' class="btn btn-success">Back to Main PAGE</a>
+              <a href='orders.php' class="btn btn-success">Back to Main PAGE</a>
             <!-- ================= REPORT TABLE ================= -->
             <div class="table-responsive">
                 <table class="table table-bordered table-striped table-hover">
