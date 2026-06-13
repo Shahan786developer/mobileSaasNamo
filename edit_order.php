@@ -12,6 +12,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['cid'])) {
 
 $cid = $_SESSION['cid'];
 $user_id = $_SESSION['user_id'];
+$name = $_SESSION['name'];
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     $_SESSION['error'] = "Invalid order ID.";
@@ -54,9 +55,9 @@ $stmt = $conn->prepare("
     SELECT o.*, c.name as customer_name
     FROM orders o
     LEFT JOIN customers c ON o.customer_id = c.id
-    WHERE o.id = ? AND o.cid = ?
+    WHERE o.id = ? AND o.cid = ? AND o.preparedby = ?
 ");
-$stmt->bind_param("ii", $order_id, $cid);
+$stmt->bind_param("iis", $order_id, $cid, $name);
 $stmt->execute();
 $order_result = $stmt->get_result();
 
@@ -130,9 +131,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt = $conn->prepare("
             UPDATE orders 
             SET customer_id = ?, v_date = ?, updated_at = NOW()
-            WHERE id = ? AND cid = ?
+            WHERE id = ? AND cid = ? AND preparedby = ?
         ");
-        $stmt->bind_param("isii", $customer_id, $v_date, $order_id, $cid);
+        $stmt->bind_param("isiss", $customer_id, $v_date, $order_id, $cid, $name);
         
         if (!$stmt->execute()) {
             throw new Exception("Failed to update order: " . $stmt->error);

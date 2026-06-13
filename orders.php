@@ -29,9 +29,11 @@ $cid = $_SESSION['cid'];
 $user_id = $_SESSION['user_id'];
 $is_admin = $_SESSION['is_admin'] ?? 0;
 
+$name = $_SESSION['name'];
+
 // Initialize filter variables
 $voucher_no = isset($_GET['voucher_no']) ? trim($_GET['voucher_no']) : '';
-$customer_id = isset($_GET['customer_id']) ? intval($_GET['customer_id']) : 0;
+$customer_id = isset($_GET['customer_id']) ? trim($_GET['customer_id']) : '';
 $sdate = isset($_GET['sdate']) ? $_GET['sdate'] : '';
 $edate = isset($_GET['edate']) ? $_GET['edate'] : '';
 
@@ -46,11 +48,11 @@ $query = "
         c.name as customer_name
     FROM orders o
     LEFT JOIN customers c ON o.customer_id = c.id AND o.cid = c.cid
-    WHERE o.cid = ?
+    WHERE o.cid = ? AND o.preparedby = ?
 ";
 
-$params = [$cid];
-$param_types = "i";
+$params = [$cid, $name];
+$param_types = "is";
 
 // Add filters
 if (!empty($voucher_no)) {
@@ -59,10 +61,10 @@ if (!empty($voucher_no)) {
     $param_types .= "s";
 }
 
-if ($customer_id > 0) {
+if ($customer_id !== '') {
     $query .= " AND o.customer_id = ?";
     $params[] = $customer_id;
-    $param_types .= "i";
+    $param_types .= "s";
 }
 
 if (!empty($sdate)) {
@@ -184,11 +186,11 @@ while ($customer = $customers_result->fetch_assoc()) {
 $customers_stmt->close();
 
 // Fetch voucher numbers for filter dropdown
-$vouchers_stmt = $conn->prepare("SELECT DISTINCT order_no FROM orders WHERE cid = ? ORDER BY order_no DESC");
+$vouchers_stmt = $conn->prepare("SELECT DISTINCT order_no FROM orders WHERE cid = ? AND preparedby = ? ORDER BY order_no DESC");
 if ($vouchers_stmt === false) {
     die("Vouchers query preparation failed: " . $conn->error);
 }
-$vouchers_stmt->bind_param("i", $cid);
+$vouchers_stmt->bind_param("is", $cid, $name);
 if (!$vouchers_stmt->execute()) {
     die("Vouchers execute failed: " . $vouchers_stmt->error);
 }

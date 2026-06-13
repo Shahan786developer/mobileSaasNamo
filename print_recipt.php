@@ -12,6 +12,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['cid'])) {
 }
 
 $cid      = $_SESSION['cid'];
+$name     = $_SESSION['name'];
 $order_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($order_id <= 0) die("Invalid Order ID");
 
@@ -20,9 +21,9 @@ $stmt = $conn->prepare("
     SELECT o.order_no, o.v_date, c.name AS customer_name
     FROM orders o
     LEFT JOIN customers c ON o.customer_id = c.id AND o.cid = c.cid
-    WHERE o.cid = ? AND o.id = ?
+    WHERE o.cid = ? AND o.id = ? AND o.preparedby = ?
 ");
-$stmt->bind_param("ii", $cid, $order_id);
+$stmt->bind_param("iis", $cid, $order_id, $name);
 $stmt->execute();
 $order = $stmt->get_result()->fetch_assoc();
 $stmt->close();
@@ -70,22 +71,22 @@ $sizes = ['32','34','36','38','40','42','44','46','48','50'];
         @media screen {
             body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
             .receipt-wrapper {
-                max-width: 760px;
+                max-width: 900px;
                 margin: 0 auto;
                 background: white;
-                padding: 20px 24px;
+                padding: 30px 40px;
                 border-radius: 6px;
                 box-shadow: 0 2px 10px rgba(0,0,0,.12);
                 font-family: 'Courier New', monospace;
             }
         }
 
-        /* ── Print ────────────────────────────────────────────── */
+        /* ── Print (A4) ───────────────────────────────────────── */
         @media print {
-            @page { margin: 0.3cm; }
+            @page { size: A4; margin: 1.5cm; }
             body  { margin: 0; padding: 0; background: #fff; }
             .no-print { display: none !important; }
-            .receipt-wrapper { width: 76mm; margin: 0 auto; padding: 5px; font-size: 11px; }
+            .receipt-wrapper { width: 100%; margin: 0; padding: 0; font-size: 13px; }
         }
 
         /* ── Shared ───────────────────────────────────────────── */
@@ -93,35 +94,35 @@ $sizes = ['32','34','36','38','40','42','44','46','48','50'];
 
         .company-header {
             text-align: center;
-            border-bottom: 1px dashed #000;
-            padding-bottom: 6px;
-            margin-bottom: 6px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
         }
-        .company-name  { font-size: 15px; font-weight: bold; }
-        .order-title   { text-align: center; font-weight: bold; font-size: 13px; margin: 6px 0; }
+        .company-name  { font-size: 20px; font-weight: bold; }
+        .order-title   { text-align: center; font-weight: bold; font-size: 16px; margin: 10px 0; }
 
-        .info-table { width: 100%; font-size: 12px; margin-bottom: 8px; }
-        .info-table td { padding: 2px 0; }
+        .info-table { width: 100%; font-size: 14px; margin-bottom: 12px; }
+        .info-table td { padding: 4px 8px; }
         .info-table td:last-child { text-align: right; font-weight: bold; }
 
         /* Items table */
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 11px;
-            margin: 8px 0;
+            font-size: 13px;
+            margin: 12px 0;
         }
         .items-table th {
             border-top: 2px solid #000;
             border-bottom: 2px solid #000;
-            padding: 4px 3px;
+            padding: 8px 6px;
             text-align: center;
             background: #f2f2f2;
         }
         .items-table th.left { text-align: left; }
         .items-table td {
-            padding: 3px 3px;
-            border-bottom: 1px dashed #ccc;
+            padding: 6px 6px;
+            border-bottom: 1px solid #ddd;
             text-align: center;
             vertical-align: middle;
         }
@@ -134,33 +135,33 @@ $sizes = ['32','34','36','38','40','42','44','46','48','50'];
             border-bottom: 2px solid #000;
             font-weight: bold;
             background: #f9f9f9;
-            padding: 4px 3px;
+            padding: 8px 6px;
             text-align: center;
         }
         .grand-total td.left { text-align: left; }
 
         .total-box {
             text-align: center;
-            border-top: 1px dashed #000;
-            border-bottom: 1px dashed #000;
-            padding: 6px 0;
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 10px 0;
             font-weight: bold;
-            font-size: 13px;
-            margin: 8px 0;
+            font-size: 16px;
+            margin: 12px 0;
         }
         .barcode {
             text-align: center;
             font-family: 'Libre Barcode 39', monospace;
-            font-size: 28px;
-            margin: 8px 0;
+            font-size: 36px;
+            margin: 12px 0;
         }
         .footer {
             text-align: center;
-            border-top: 1px dashed #000;
-            padding-top: 5px;
-            font-size: 10px;
+            border-top: 2px solid #000;
+            padding-top: 8px;
+            font-size: 12px;
             color: #555;
-            margin-top: 8px;
+            margin-top: 12px;
         }
         .no-print {
             text-align: center;

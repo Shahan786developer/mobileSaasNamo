@@ -7,6 +7,7 @@ if (!isset($_SESSION['cid']) || empty($_SESSION['cid'])) {
 }
 
 $cid = $_SESSION['cid'];
+$name = $_SESSION['name'];
 
 // Fetch customers and items
 $customers = [];
@@ -75,8 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Insert into orders
         $totalOrderQty = 0;
-        $stmtOrder = $conn->prepare("INSERT INTO orders (order_no, cid, customer_id, v_date, total_qty, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
-        $stmtOrder->bind_param("iiisi", $orderNo, $cid, $customer_id, $v_date, $totalOrderQty);
+        $stmtOrder = $conn->prepare("INSERT INTO orders (order_no, cid, customer_id, v_date, total_qty, preparedby, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+        $stmtOrder->bind_param("iiisis", $orderNo, $cid, $customer_id, $v_date, $totalOrderQty, $name);
         
         if (!$stmtOrder->execute()) {
             throw new Exception("Failed to create order: " . $stmtOrder->error);
